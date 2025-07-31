@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,51 +8,113 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
-  username        String    @unique
-  password        String
-  name            String
-  role            Role      @default(CASHIER)
-  isActive        Boolean   @default(true)
-  lastLogin       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relations
-  salesCreated    Sale[]    @relation("CreatedBy")
+  id               String     @id @default(uuid())
+  username         String     @unique
+  password         String
+  name             String
+  role             String     @default("CASHIER")
+  isActive         Boolean    @default(true)
+  lastLogin        DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
   purchasesCreated Purchase[] @relation("CreatedBy")
-  sessions        Session[]
+  salesCreated     Sale[]     @relation("CreatedBy")
+  sessions         Session[]
+  stockLogs        StockLog[]
 }
 
 model Session {
-  id              String    @id @default(uuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token           String    @unique
-  expiresAt       DateTime
-  lastActivity    DateTime  @default(now())
-  createdAt       DateTime  @default(now())
-  
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  lastActivity DateTime @default(now())
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([token])
 }
 
-enum Role {
-  ADMIN
-  CASHIER
+model Product {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  barcode       String?        @unique
+  qrCode        String?        @unique
+  sku           String?        @unique
+  image         String?
+  costPrice     Float
+  salePrice     Float
+  stockQuantity Int            @default(0)
+  minStockLevel Int            @default(10)
+  unit          String         @default("piece")
+  category      String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  purchaseItems PurchaseItem[]
+  saleItems     SaleItem[]
+  stockLogs     StockLog[]
+
+  @@index([barcode])
+  @@index([name])
+  @@index([category])
 }
 
-// Placeholder models - will be implemented in later steps
+model StockLog {
+  id            String   @id @default(uuid())
+  productId     String
+  type          String
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  reference     String?
+  reason        String?
+  createdBy     String
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [createdBy], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([type])
+}
+
 model Sale {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   createdBy String
-  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdAt DateTime   @default(now())
+  user      User       @relation("CreatedBy", fields: [createdBy], references: [id])
+  items     SaleItem[]
+}
+
+model SaleItem {
+  id        String   @id @default(uuid())
+  saleId    String
+  productId String
+  quantity  Int
+  price     Float
+  discount  Float    @default(0)
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  sale      Sale     @relation(fields: [saleId], references: [id])
 }
 
 model Purchase {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   createdBy String
-  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
+  user      User           @relation("CreatedBy", fields: [createdBy], references: [id])
+  items     PurchaseItem[]
+}
+
+model PurchaseItem {
+  id         String   @id @default(uuid())
+  purchaseId String
+  productId  String
+  quantity   Int
+  costPrice  Float
+  createdAt  DateTime @default(now())
+  product    Product  @relation(fields: [productId], references: [id])
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
 }

@@ -5,22 +5,20 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/login']
+  const publicRoutes = ['/login', '/api/auth/login']
   
   // Check if the current route is public
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
 
-  // Check if user has auth storage (Zustand persists to localStorage)
-  // The actual auth check happens client-side
-  // For server-side rendering, we just check if the storage exists
+  // For now, we'll handle auth checks on the client side
+  // because we're using localStorage for token storage
+  // In a production app, you might want to use httpOnly cookies
   
-  // Skip middleware for public routes
-  if (isPublicRoute) {
-    return NextResponse.next()
+  // Redirect root to login
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // For protected routes, we'll let the client-side handle the redirect
-  // This is because localStorage is not available in middleware
   return NextResponse.next()
 }
 
@@ -28,12 +26,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }

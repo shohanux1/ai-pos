@@ -13,7 +13,6 @@ import * as AlertDialog from '@radix-ui/react-alert-dialog'
 import { 
   ChevronLeft, 
   UserPlus, 
-  User as UserIcon, 
   Shield, 
   KeyRound, 
   Loader2,
@@ -22,8 +21,7 @@ import {
   UserX,
   X,
   ChevronDown,
-  Check,
-  MoreHorizontal
+  Check
 } from 'lucide-react'
 
 export default function UsersPage() {
@@ -250,7 +248,7 @@ export default function UsersPage() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-6 py-8">
           {/* Users Table */}
-          <div className="bg-white rounded-lg border border-gray-200">
+          <div className="card">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
