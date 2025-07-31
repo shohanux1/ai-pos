@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI POS System
+
+A modern Point of Sale (POS) system built with Next.js 14, TypeScript, and Vercel's design system.
+
+## Features
+
+- 🔐 **Authentication System** - Secure login with JWT tokens
+- 👥 **User Management** - Admin can manage cashiers and staff
+- 📊 **Dashboard** - Real-time sales statistics and metrics
+- 🎨 **Vercel Design System** - Clean, minimalist UI with Geist font
+- 📱 **Responsive Design** - Works on desktop and mobile devices
+- 🖥️ **Desktop App** - Tauri integration for native desktop experience
+- 🗄️ **Database** - SQLite with Prisma ORM
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React, TypeScript
+- **Styling**: Tailwind CSS v4, Vercel Design System
+- **UI Components**: Radix UI primitives
+- **Icons**: Lucide React
+- **State Management**: Zustand
+- **Forms**: React Hook Form + Zod validation
+- **Database**: SQLite + Prisma
+- **Desktop**: Tauri
+- **Authentication**: JWT tokens
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm or yarn
+- Git
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/shohanux1/ai-pos.git
+cd ai-pos
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up the database:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-To learn more about Next.js, take a look at the following resources:
+### Default Credentials
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Username**: admin
+- **Password**: admin123
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+├── app/                  # Next.js app directory
+│   ├── dashboard/       # Dashboard page
+│   ├── login/          # Login page
+│   ├── users/          # User management
+│   └── globals.css     # Global styles
+├── components/          # React components
+├── lib/                # Utilities and APIs
+│   ├── api/           # API clients
+│   └── stores/        # Zustand stores
+├── prisma/            # Database schema
+├── public/            # Static assets
+└── src-tauri/         # Tauri desktop app
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Available Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run tauri dev` - Run desktop app in development
+- `npm run tauri build` - Build desktop app
+
+## Features Overview
+
+### Authentication
+- JWT-based authentication
+- Protected routes with middleware
+- Persistent login state
+
+### User Management
+- Create, read, update, delete users
+- Role-based access (Admin/Cashier)
+- Password reset functionality
+
+### Dashboard
+- Sales statistics
+- Transaction counts
+- Inventory status
+- Low stock alerts
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- Styled with [Vercel Design System](https://vercel.com/design)
+- Icons from [Lucide](https://lucide.dev/)
