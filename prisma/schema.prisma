@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  username        String    @unique
+  password        String
+  name            String
+  role            Role      @default(CASHIER)
+  isActive        Boolean   @default(true)
+  lastLogin       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  salesCreated    Sale[]    @relation("CreatedBy")
+  purchasesCreated Purchase[] @relation("CreatedBy")
+  sessions        Session[]
+}
+
+model Session {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token           String    @unique
+  expiresAt       DateTime
+  lastActivity    DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([token])
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+// Placeholder models - will be implemented in later steps
+model Sale {
+  id        String   @id @default(uuid())
+  createdBy String
+  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  createdBy String
+  user      User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+}
