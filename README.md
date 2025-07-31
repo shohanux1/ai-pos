@@ -60,8 +60,13 @@ npm run dev
 
 ### Default Credentials
 
+Admin account:
 - **Username**: admin
 - **Password**: admin123
+
+Cashier account:
+- **Username**: cashier
+- **Password**: cashier123
 
 ## Project Structure
 

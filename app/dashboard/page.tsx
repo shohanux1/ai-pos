@@ -3,10 +3,11 @@
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api/auth'
-import { ProtectedRoute } from '@/components/auth/protected-route'
+import { productsApi } from '@/lib/api/products'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import * as Avatar from '@radix-ui/react-avatar'
-import * as Separator from '@radix-ui/react-separator'
+import { useEffect, useState } from 'react'
+import { LowStockAlert } from '@/components/dashboard/low-stock-alert'
 import { 
   ShoppingCart, 
   Package, 
@@ -31,13 +32,41 @@ import {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, token, logout } = useAuthStore()
+  const [productStats, setProductStats] = useState({
+    total: 0,
+    lowStock: 0
+  })
+
+  useEffect(() => {
+    loadProductStats()
+  }, [])
+
+  const loadProductStats = async () => {
+    try {
+      const [allProducts, lowStockProducts] = await Promise.all([
+        productsApi.getAll(),
+        productsApi.getAll({ lowStock: true })
+      ])
+      setProductStats({
+        total: allProducts.length,
+        lowStock: lowStockProducts.length
+      })
+    } catch (error) {
+      console.error('Error loading product stats:', error)
+    }
+  }
 
   const handleLogout = async () => {
-    if (token) {
-      await authApi.logout(token)
+    try {
+      if (token) {
+        await authApi.logout(token)
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      logout()
+      router.push('/login')
     }
-    logout()
-    router.push('/login')
   }
 
   if (!user) {
@@ -127,27 +156,26 @@ export default function DashboardPage() {
     },
     {
       title: 'Products',
-      value: '256',
+      value: productStats.total.toString(),
       change: 'In Stock',
       changeType: 'neutral',
       icon: Package,
-      details: '32 categories',
+      details: `${productStats.total - productStats.lowStock} well stocked`,
       detailIcon: ShoppingBag,
     },
     {
       title: 'Low Stock',
-      value: '12',
-      change: 'Action needed',
-      changeType: 'negative',
+      value: productStats.lowStock.toString(),
+      change: productStats.lowStock > 0 ? 'Action needed' : 'All good',
+      changeType: productStats.lowStock > 0 ? 'negative' : 'positive',
       icon: AlertTriangle,
-      details: 'Reorder required',
+      details: productStats.lowStock > 0 ? 'Reorder required' : 'No items low',
       detailIcon: AlertTriangle,
     },
   ]
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-6">
@@ -209,18 +237,18 @@ export default function DashboardPage() {
           {/* Welcome Section */}
           <div className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-1">Welcome back, {user.name}</h2>
-            <p className="text-gray-600">Here's what's happening with your store today.</p>
+            <p className="text-gray-600">Here&apos;s what&apos;s happening with your store today.</p>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {stats.map((stat, index) => {
+            {stats.map((stat) => {
               const Icon = stat.icon
               const DetailIcon = stat.detailIcon
               return (
                 <div 
                   key={stat.title} 
-                  className="bg-white rounded-lg border border-gray-200 p-6"
+                  className="card p-6"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-2 bg-gray-50 rounded-md">
@@ -255,13 +283,13 @@ export default function DashboardPage() {
 
           {/* Menu Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...menuItems, ...(user.role === 'ADMIN' ? adminItems : [])].map((item, index) => {
+            {[...menuItems, ...(user.role === 'ADMIN' ? adminItems : [])].map((item) => {
               const Icon = item.icon
               return (
                 <button
                   key={item.title}
                   onClick={() => router.push(item.route)}
-                  className="group bg-white rounded-lg border border-gray-200 p-6 text-left hover:border-gray-300 hover:shadow-sm transition-all duration-200"
+                  className="group card card-hover p-6 text-left transition-all duration-200"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-2 ${item.iconBg} rounded-md`}>
@@ -275,6 +303,13 @@ export default function DashboardPage() {
               )
             })}
           </div>
+
+          {/* Low Stock Alert Section */}
+          {productStats.lowStock > 0 && (
+            <div className="mt-8">
+              <LowStockAlert />
+            </div>
+          )}
 
           {/* Additional Section */}
           <div className="mt-12 bg-gray-900 rounded-lg p-8 text-white">
@@ -291,6 +326,5 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
-    </ProtectedRoute>
   )
 }

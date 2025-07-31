@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { authApi } from '@/lib/api/auth'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import * as Label from '@radix-ui/react-label'
-import { Store, User, Lock, Loader2, AlertCircle } from 'lucide-react'
+import { Store, Loader2, AlertCircle } from 'lucide-react'
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -19,10 +19,12 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
-  const setAuth = useAuthStore((state) => state.setAuth)
+  const { setAuth, isAuthenticated, isLoading: authLoading } = useAuthStore()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
+  // Move useForm hook before any conditional returns
   const {
     register,
     handleSubmit,
@@ -30,6 +32,41 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    // Redirect if already authenticated
+    if (mounted && isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, router, mounted])
+
+  // Show loading while checking initial auth
+  if (!mounted || authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin h-8 w-8 text-gray-900 mx-auto" />
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect if authenticated
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin h-8 w-8 text-gray-900 mx-auto" />
+          <p className="mt-2 text-gray-600">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
@@ -39,22 +76,30 @@ export default function LoginPage() {
       const response = await authApi.login(data)
       
       if (response) {
+        // Set auth and immediately redirect
         setAuth(
           {
             id: response.user.id,
             username: response.user.username,
             name: response.user.name,
-            role: response.user.role,
+            role: response.user.role as 'ADMIN' | 'CASHIER',
+            is_active: response.user.is_active,
           },
           response.token
         )
+        
+        // Navigate immediately after setting auth
         router.push('/dashboard')
       } else {
-        setError('Invalid username or password')
+        setError('Invalid username or password. Please check your credentials.')
       }
     } catch (err) {
-      setError('An error occurred. Please try again.')
-      console.error(err)
+      console.error('Login error:', err)
+      if (err instanceof Error && err.message) {
+        setError(err.message)
+      } else {
+        setError('Unable to connect to server. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
