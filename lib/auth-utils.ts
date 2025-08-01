@@ -26,7 +26,7 @@ export function verifyToken(token: string): { userId: string } | null {
   }
 }
 
-export async function verifyAuth(request: NextRequest): Promise<{ success: boolean; user?: any }> {
+export async function verifyAuth(request: NextRequest): Promise<{ success: boolean; user?: { id: string; username: string; name: string; role: string; isActive: boolean } }> {
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

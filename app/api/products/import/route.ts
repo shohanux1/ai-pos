@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     const text = await file.text();
-    let products: any[] = [];
+    let products: Record<string, unknown>[] = [];
 
     try {
       if (format === 'csv') {

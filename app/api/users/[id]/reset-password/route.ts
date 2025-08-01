@@ -27,9 +27,10 @@ async function authenticate(request: NextRequest) {
 // POST reset password
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await authenticate(request)
     
     if (!user || user.role !== 'ADMIN') {
@@ -54,7 +55,7 @@ export async function POST(
 
     // Update user password
     await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { password: hashedPassword }
     })
 
