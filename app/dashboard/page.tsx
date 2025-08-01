@@ -80,6 +80,14 @@ export default function DashboardPage() {
       icon: ShoppingCart,
       iconBg: 'bg-gray-100',
       iconColor: 'text-gray-700',
+      route: '/pos',
+    },
+    {
+      title: 'Sales',
+      description: 'View all transactions',
+      icon: BarChart3,
+      iconBg: 'bg-gray-100',
+      iconColor: 'text-gray-700',
       route: '/sales',
     },
     {

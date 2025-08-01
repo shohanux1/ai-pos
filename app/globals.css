@@ -265,3 +265,47 @@
   animation: slide-up 0.15s ease-out;
   animation-fill-mode: both;
 }
+
+/* Print styles */
+@media print {
+  /* Hide everything except invoice content */
+  body * {
+    visibility: hidden;
+  }
+  
+  .invoice-content, .invoice-content * {
+    visibility: visible;
+  }
+  
+  .invoice-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    padding: 20px;
+  }
+  
+  /* Hide non-printable elements */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Reset colors for better printing */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  
+  /* Ensure proper page breaks */
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+  
+  /* Avoid page breaks inside elements */
+  tr, td, th {
+    page-break-inside: avoid;
+  }
+}

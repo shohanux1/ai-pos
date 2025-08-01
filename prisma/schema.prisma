@@ -81,11 +81,14 @@ model StockLog {
 }
 
 model Sale {
-  id        String     @id @default(uuid())
-  createdBy String
-  createdAt DateTime   @default(now())
-  user      User       @relation("CreatedBy", fields: [createdBy], references: [id])
-  items     SaleItem[]
+  id         String     @id @default(uuid())
+  customerId String?
+  createdBy  String
+  createdAt  DateTime   @default(now())
+  Payment    Payment?
+  user       User       @relation("CreatedBy", fields: [createdBy], references: [id])
+  Customer   Customer?  @relation(fields: [customerId], references: [id])
+  items      SaleItem[]
 }
 
 model SaleItem {
@@ -117,4 +120,69 @@ model PurchaseItem {
   createdAt  DateTime @default(now())
   product    Product  @relation(fields: [productId], references: [id])
   purchase   Purchase @relation(fields: [purchaseId], references: [id])
+}
+
+model Customer {
+  id                 String               @id
+  code               String               @unique
+  name               String
+  email              String?              @unique
+  phone              String?              @unique
+  address            String?
+  loyaltyPoints      Int                  @default(0)
+  creditLimit        Float                @default(0)
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  CustomerPayment    CustomerPayment[]
+  LoyaltyTransaction LoyaltyTransaction[]
+  Sale               Sale[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([name])
+}
+
+model CustomerPayment {
+  id         String   @id
+  customerId String
+  amount     Float
+  type       String
+  method     String
+  reference  String?
+  note       String?
+  createdBy  String
+  createdAt  DateTime @default(now())
+  Customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@index([type])
+  @@index([customerId])
+}
+
+model LoyaltyTransaction {
+  id         String   @id
+  customerId String
+  points     Int
+  type       String
+  reference  String?
+  balance    Int
+  createdAt  DateTime @default(now())
+  Customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@index([type])
+  @@index([customerId])
+}
+
+model Payment {
+  id                String   @id
+  saleId            String   @unique
+  amount            Float
+  paymentMethod     String
+  receivedAmount    Float?
+  changeAmount      Float?
+  loyaltyPointsUsed Int?     @default(0)
+  createdAt         DateTime @default(now())
+  Sale              Sale     @relation(fields: [saleId], references: [id])
+
+  @@index([paymentMethod])
 }

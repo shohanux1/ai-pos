@@ -20,7 +20,9 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <AuthProvider>
           <ToastProvider>
-            {children}
+            <div className="min-h-screen flex flex-col">
+              {children}
+            </div>
           </ToastProvider>
         </AuthProvider>
       </body>

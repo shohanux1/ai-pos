@@ -8,8 +8,8 @@ import { ProtectedRoute } from '@/components/auth/protected-route'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Avatar from '@radix-ui/react-avatar'
 import * as Label from '@radix-ui/react-label'
-import * as Select from '@radix-ui/react-select'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   ChevronLeft, 
   UserPlus, 
@@ -20,8 +20,7 @@ import {
   UserCheck,
   UserX,
   X,
-  ChevronDown,
-  Check
+  ChevronDown
 } from 'lucide-react'
 
 export default function UsersPage() {
@@ -195,30 +194,15 @@ export default function UsersPage() {
                         <Label.Root htmlFor="role" className="text-sm font-medium text-gray-700">
                           Role
                         </Label.Root>
-                        <Select.Root value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'ADMIN' | 'CASHIER' })}>
-                          <Select.Trigger className="input-field flex items-center justify-between">
-                            <Select.Value />
-                            <ChevronDown className="w-4 h-4 text-gray-500" />
-                          </Select.Trigger>
-                          <Select.Portal>
-                            <Select.Content className="bg-white rounded-md shadow-sm border border-gray-200 p-1">
-                              <Select.Viewport>
-                                <Select.Item value="CASHIER" className="px-3 py-2 text-sm rounded hover:bg-gray-50 cursor-pointer flex items-center justify-between">
-                                  <Select.ItemText>Cashier</Select.ItemText>
-                                  <Select.ItemIndicator>
-                                    <Check className="w-4 h-4 text-gray-700" />
-                                  </Select.ItemIndicator>
-                                </Select.Item>
-                                <Select.Item value="ADMIN" className="px-3 py-2 text-sm rounded hover:bg-gray-50 cursor-pointer flex items-center justify-between">
-                                  <Select.ItemText>Admin</Select.ItemText>
-                                  <Select.ItemIndicator>
-                                    <Check className="w-4 h-4 text-gray-700" />
-                                  </Select.ItemIndicator>
-                                </Select.Item>
-                              </Select.Viewport>
-                            </Select.Content>
-                          </Select.Portal>
-                        </Select.Root>
+                        <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'ADMIN' | 'CASHIER' })}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CASHIER">Cashier</SelectItem>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       
                       <div className="flex justify-end space-x-3 pt-4">

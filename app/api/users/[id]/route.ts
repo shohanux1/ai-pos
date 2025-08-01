@@ -27,9 +27,10 @@ async function authenticate(request: NextRequest) {
 // PUT update user
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await authenticate(request)
     
     if (!user || user.role !== 'ADMIN') {
@@ -43,7 +44,7 @@ export async function PUT(
     const { name, role, is_active } = body
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name !== undefined && { name }),
         ...(role !== undefined && { role }),
@@ -81,9 +82,10 @@ export async function PUT(
 // DELETE user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await authenticate(request)
     
     if (!user || user.role !== 'ADMIN') {
@@ -94,7 +96,7 @@ export async function DELETE(
     }
 
     // Prevent deleting self
-    if (user.id === params.id) {
+    if (user.id === id) {
       return NextResponse.json(
         { error: 'Cannot delete your own account' },
         { status: 400 }
@@ -102,7 +104,7 @@ export async function DELETE(
     }
 
     await prisma.user.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ success: true })
